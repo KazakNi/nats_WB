@@ -14,7 +14,7 @@ func main() {
 	logger.Info("Start program")
 
 	broker.Publish()
-	broker.Subscribe()
+	broker.Subscribe_to_channel()
 
 	stop := make(chan os.Signal, 1)
 

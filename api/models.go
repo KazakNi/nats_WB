@@ -1,6 +1,10 @@
-package json
+package api
 
-import "time"
+import (
+	"time"
+
+	"github.com/go-playground/validator/v10"
+)
 
 type Order struct {
 	Order_uid          string `json:"order_uid" validate:"required"`
@@ -15,8 +19,19 @@ type Order struct {
 	Delivery_service   string    `json:"delivery_service" validate:"required"`
 	Shardkey           int       `json:"shardkey" validate:"required,numeric"`
 	Sm_id              int       `json:"sm_id" validate:"required,numeric"`
-	Date_created       time.Time `json:"date_created"  validate:"required,datetime"`
+	Date_created       time.Time `json:"date_created"  validate:"required"`
 	Oof_shard          int       `json:"oof_shard" validate:"required,numeric"`
+}
+
+func (o *Order) Validate() error {
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err := validate.Struct(o)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type Delivery struct {

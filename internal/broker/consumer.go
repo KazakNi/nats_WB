@@ -9,7 +9,7 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-func Subscribe() {
+func Subscribe_to_channel() {
 	nc, err := nats.Connect(nats.DefaultURL)
 	if err != nil {
 		slog.Error("Consumer can't connect", err)
@@ -25,7 +25,7 @@ func Subscribe() {
 		slog.Error("Can't connect: %v.\nMake sure a NATS Streaming Server is running at: %s", err, nats.DefaultURL)
 	}
 
-	slog.Info("Connected to: %", nats.DefaultURL)
+	slog.Info("Connected to: %s", nats.DefaultURL)
 
 	defer sc.Close()
 	subj := "orders"
@@ -38,15 +38,18 @@ func Subscribe() {
 	if err != nil {
 		slog.Error("Consumer can't subscribe %s", err)
 	}
-
 	defer sub.Close()
 	defer sub.Unsubscribe()
-
-	select {
-	case m := <-ch:
-		fmt.Printf("Message has arrived!: \n %s", m.Data)
-		m.Ack()
-	case <-time.After(5 * time.Second):
-		break
+	for {
+		select {
+		case m := <-ch:
+			fmt.Println("Message has arrived!: \n ", string(m.Data))
+			m.Ack()
+			// TODO: m.Data -> cache
+			//
+		case <-time.After(10 * time.Second):
+			break
+		}
 	}
+
 }

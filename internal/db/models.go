@@ -28,8 +28,7 @@ type Delivery struct {
 }
 
 type Payment struct {
-	Order_id      string `db:"order_id"` // FK
-	Transaction   string `db:"transaction"`
+	Transaction   string `db:"transaction"` // FK Order_uid
 	Request_id    int    `db:"request_id"`
 	Currency      string `db:"currency"`
 	Provider      string `db:"provider"`
@@ -42,9 +41,8 @@ type Payment struct {
 }
 
 type Item struct {
-	Order_id     string `db:"order_id"` // FK
 	Chrt_id      int    `db:"chrt_id"`
-	Track_number string `db:"track_number"`
+	Track_number string `db:"track_number"` // FK
 	Price        int    `db:"price"`
 	Rid          string `db:"rid"`
 	Name         string `db:"name"`
