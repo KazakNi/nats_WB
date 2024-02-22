@@ -84,12 +84,6 @@ func Json_generator(i int) ([]byte, error) {
 		return nil, err
 	}
 
-	err = order.Validate()
-
-	if err != nil {
-		return nil, err
-	}
-
 	b, err = json.MarshalIndent(&order, "", "    ")
 
 	if err != nil {

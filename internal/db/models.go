@@ -42,7 +42,7 @@ type Payment struct {
 
 type Item struct {
 	Chrt_id      int    `db:"chrt_id"`
-	Track_number string `db:"track_number"` // FK
+	Track_number string `db:"track_number"` // FK Track_number
 	Price        int    `db:"price"`
 	Rid          string `db:"rid"`
 	Name         string `db:"name"`

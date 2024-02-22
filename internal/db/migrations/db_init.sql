@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS ORDERS, DELIVERIES, PAYMENTS, ITEMS;
 -- create
 CREATE TABLE ORDERS (
   order_uid VARCHAR (50) PRIMARY KEY NOT NULL,
-  track_number VARCHAR (50),
+  track_number VARCHAR (50) UNIQUE,
   entry VARCHAR (50),
   locale VARCHAR (50),
   internal_signature VARCHAR (50),
@@ -27,8 +27,7 @@ CREATE TABLE DELIVERIES (
 );
 
 CREATE TABLE PAYMENTS (
-  order_id VARCHAR (50) REFERENCES orders,
-  transaction VARCHAR (50),
+  transaction VARCHAR (50) REFERENCES orders,
   request_id INT,
   currency VARCHAR (50),
   provider VARCHAR (50),
@@ -41,9 +40,8 @@ CREATE TABLE PAYMENTS (
 );
 
 CREATE TABLE ITEMS (
-  order_id VARCHAR (50) REFERENCES orders,
   chrt_id INT,
-  track_number VARCHAR (50),
+  track_number VARCHAR (50) REFERENCES orders(track_number),
   price INT,
   rid VARCHAR (50),
   name VARCHAR (50),

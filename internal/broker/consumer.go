@@ -1,22 +1,29 @@
 package broker
 
 import (
+	"encoding/json"
 	"fmt"
 	"log/slog"
+	"nats/api"
 	"time"
 
-	nats "github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
 )
 
-func Subscribe_to_channel() {
+const subj = "orders"
+
+func natsConnect() (*nats.Conn, error) {
 	nc, err := nats.Connect(nats.DefaultURL)
 	if err != nil {
 		slog.Error("Consumer can't connect", err)
+		return nil, err
 	}
 	slog.Info("Sub is connecting")
-	defer nc.Close()
+	return nc, nil
+}
 
+func getSubConnection(nc *nats.Conn) stan.Conn {
 	sc, err := stan.Connect("test-cluster", "stan-sub", stan.NatsConn(nc),
 		stan.SetConnectionLostHandler(func(_ stan.Conn, reason error) {
 			slog.Error("Connection sub lost, reason: %v", reason)
@@ -26,9 +33,24 @@ func Subscribe_to_channel() {
 	}
 
 	slog.Info("Connected to: %s", nats.DefaultURL)
+	return sc
+}
 
+func Subscribe_to_channel() {
+	var chunk api.Order
+
+	//Boot cache
+	// cache := cache.New()
+
+	nc, err := natsConnect()
+	if err != nil {
+		panic("Coud not connect to NATS-server")
+	}
+
+	defer nc.Close()
+	sc := getSubConnection(nc)
 	defer sc.Close()
-	subj := "orders"
+
 	ch := make(chan *stan.Msg, 1024)
 	mcb := func(msg *stan.Msg) {
 		ch <- msg
@@ -40,13 +62,28 @@ func Subscribe_to_channel() {
 	}
 	defer sub.Close()
 	defer sub.Unsubscribe()
+
 	for {
 		select {
 		case m := <-ch:
 			fmt.Println("Message has arrived!: \n ", string(m.Data))
+			err = json.Unmarshal(m.Data, &chunk)
+
+			if err != nil {
+				slog.Error("Error while validating sub chunk", err)
+			}
+
+			err = chunk.Validate()
+
+			if err != nil {
+				slog.Error(fmt.Sprintf("Error while validating chunk id #%s: err - %s", chunk.Order_uid, err))
+			} else {
+				// TODO: chunk -> cache
+				// TODO: chunk -> DB
+			}
+
 			m.Ack()
-			// TODO: m.Data -> cache
-			//
+
 		case <-time.After(10 * time.Second):
 			break
 		}

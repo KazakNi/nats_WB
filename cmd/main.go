@@ -1,17 +1,28 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"nats/internal/broker"
+	"nats/internal/db"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
+const init_db = false
+
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
 	logger.Info("Start program")
+
+	db.DBConnection, _ = db.NewDBConnection()
+	defer db.DBConnection.Close()
+
+	if init_db {
+		db.ExecMigration(db.DBConnection, "../internal/db/migrations/db_init.sql")
+	}
 
 	broker.Publish()
 	broker.Subscribe_to_channel()
@@ -22,5 +33,5 @@ func main() {
 
 	sygType := <-stop
 
-	logger.Info("End program", sygType)
+	logger.Info(fmt.Sprintf("End signal: %s", sygType))
 }
