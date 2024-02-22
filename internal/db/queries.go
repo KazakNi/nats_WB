@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"io/ioutil"
+	"nats/api"
 	"os"
 	"path/filepath"
 
@@ -63,4 +64,16 @@ func ExecMigration(db *sqlx.DB, path string) error {
 		panic(err)
 	}
 	return nil
+}
+
+func getItembyId(db *sqlx.DB, id string) api.Order {
+	// from controller
+}
+
+func getItems(db *sqlx.DB) []api.Order {
+	// from Cache
+}
+
+func insertItem(db *sqlx.DB, order api.Order) {
+	// from Pub
 }

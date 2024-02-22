@@ -10,7 +10,7 @@ type Cache struct {
 	items map[string][]byte
 }
 
-func New() *Cache {
+func New(c *Cache) *Cache {
 	items := make(map[string][]byte)
 
 	cache := Cache{
@@ -38,10 +38,20 @@ func (c *Cache) Get(key string) (data []byte, found bool) {
 }
 
 func (c *Cache) Set(key string, data []byte) {
+	c.Lock()
 
+	defer c.Unlock()
+
+	c.items[key] = data
 }
 
 func (c *Cache) Warm() {
-	// get slice of IDs
-	// iterate over IDs and get all data
+	// db.getItems
+	// process each item by Cache validation method
+	// Set each validated item in bytes to the Cache
+}
+
+func (c *Cache) ValidateItem(rows string) []byte {
+	// todo
+	return nil
 }

@@ -18,6 +18,7 @@ func main() {
 	logger.Info("Start program")
 
 	db.DBConnection, _ = db.NewDBConnection()
+
 	defer db.DBConnection.Close()
 
 	if init_db {
