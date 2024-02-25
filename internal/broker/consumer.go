@@ -34,7 +34,7 @@ func getSubConnection(nc *nats.Conn) stan.Conn {
 		slog.Error("Can't connect: %v.\nMake sure a NATS Streaming Server is running at: %s", err, nats.DefaultURL)
 	}
 
-	slog.Info("Connected to: %s", nats.DefaultURL)
+	slog.Info(fmt.Sprintf("Connected to: %s", nats.DefaultURL))
 	return sc
 }
 
@@ -80,12 +80,12 @@ func Subscribe_to_channel() {
 				slog.Error(fmt.Sprintf("Error while validating chunk id #%s: err - %s", chunk.Order_uid, err))
 			} else {
 				cache.Set(chunk.Order_uid, m.Data)
-				db.insertItem(db.DBConnection, chunk)
+				db.InsertItem(db.DBConnection, chunk)
 			}
 			m.Ack()
 
 		case <-time.After(15 * time.Second):
-			break
+			return
 		}
 	}
 

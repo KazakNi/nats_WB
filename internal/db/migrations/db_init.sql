@@ -16,7 +16,7 @@ CREATE TABLE ORDERS (
 );
 
 CREATE TABLE DELIVERIES (
-  order_id VARCHAR (50) REFERENCES orders,
+  order_id VARCHAR (50) NOT NULL REFERENCES orders,
   name VARCHAR (50),
   phone VARCHAR (50),
   zip INT,
@@ -27,7 +27,7 @@ CREATE TABLE DELIVERIES (
 );
 
 CREATE TABLE PAYMENTS (
-  transaction VARCHAR (50) REFERENCES orders,
+  transaction VARCHAR (50) NOT NULL REFERENCES orders,
   request_id INT,
   currency VARCHAR (50),
   provider VARCHAR (50),
@@ -41,7 +41,7 @@ CREATE TABLE PAYMENTS (
 
 CREATE TABLE ITEMS (
   chrt_id INT,
-  track_number VARCHAR (50) REFERENCES orders(track_number),
+  track_number VARCHAR (50) NOT NULL REFERENCES orders(track_number),
   price INT,
   rid VARCHAR (50),
   name VARCHAR (50),

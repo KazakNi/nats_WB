@@ -7,14 +7,14 @@ import (
 
 type Cache struct {
 	sync.RWMutex
-	items map[string][]byte
+	Items map[string][]byte
 }
 
-func New(c *Cache) *Cache {
+func New() *Cache {
 	items := make(map[string][]byte)
 
 	cache := Cache{
-		items: items,
+		Items: items,
 	}
 
 	//start warming
@@ -27,7 +27,7 @@ func (c *Cache) Get(key string) (data []byte, found bool) {
 
 	defer c.RUnlock()
 
-	value, found := c.items[key]
+	value, found := c.Items[key]
 
 	if !found {
 		slog.Info("cannot found key:%s", key)
@@ -42,7 +42,7 @@ func (c *Cache) Set(key string, data []byte) {
 
 	defer c.Unlock()
 
-	c.items[key] = data
+	c.Items[key] = data
 }
 
 func (c *Cache) Warm() {

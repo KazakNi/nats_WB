@@ -15,7 +15,7 @@ type Order struct {
 	Entry              string     `fake:"{hackerabbreviation}"`
 	Delivery           []Delivery `fakesize:"1"`
 	Payment            []Payment  `fakesize:"1"`
-	Items              []Item     `fakesize:"1"`
+	Item               []Item     `fakesize:"1"`
 	Locale             string     `fake:"{countryabr}"`
 	Internal_signature string     `fake:"{buzzword}"`
 	Customer_id        int        `fake:"{number:1,1000000}"`
@@ -37,7 +37,7 @@ type Delivery struct {
 }
 
 type Payment struct {
-	Transaction   string `fake:"{uuid}"`
+	Transaction   string `fake:"skip"`
 	Request_id    int    `fake:"{number:1,9999}"`
 	Currency      string `fake:"{currencyshort}"`
 	Provider      string `fake:"{hackernoun}"`

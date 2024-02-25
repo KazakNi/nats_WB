@@ -1,18 +1,21 @@
 package api
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 )
 
 type Order struct {
-	Order_uid          string `json:"order_uid" validate:"required"`
-	Track_number       string `json:"track_number" validate:"required,numeric"`
-	Entry              string `json:"entry" validate:"required"`
-	Delivery           []Delivery
+	Order_uid          string     `json:"order_uid" validate:"required"`
+	Track_number       string     `json:"track_number" validate:"required,numeric"`
+	Entry              string     `json:"entry" validate:"required"`
+	Delivery           Deliveries `json:"delivery" db:"delivery"`
 	Payment            []Payment
-	Items              []Item
+	Item               []Item
 	Locale             string    `json:"locale" validate:"required"`
 	Internal_signature string    `json:"internal_signature" validate:"required"`
 	Customer_id        int       `json:"customer_id" validate:"required,numeric"`
@@ -44,6 +47,25 @@ type Delivery struct {
 	Email   string `json:"email" validate:"required,email"`
 }
 
+type Deliveries struct {
+	Delivery []Delivery `json:"delivery" db:"delivery"`
+}
+
+func (d Deliveries) Value() (driver.Value, error) {
+	return json.Marshal(d)
+}
+
+func (d *Deliveries) Scan(value interface{}) error {
+	var deliveries Delivery
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to byte failed")
+	}
+	err := json.Unmarshal(b, &deliveries)
+	d.Delivery = append(d.Delivery, deliveries)
+	return err
+}
+
 type Payment struct {
 	Transaction   string `json:"transaction" validate:"required,alphanum"`
 	Request_id    int    `json:"request_id" validate:"required,numeric"`
@@ -55,6 +77,18 @@ type Payment struct {
 	Delivery_cost int    `json:"delivery_cost" validate:"required,numeric,gt=0"`
 	Goods_total   int    `json:"goods_total" validate:"required,numeric,gt=0"`
 	Custom_fee    int    `json:"custom_fee" validate:"required,numeric"`
+}
+
+func (p Payment) Value() (driver.Value, error) {
+	return json.Marshal(p)
+}
+
+func (p *Payment) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to byte failed")
+	}
+	return json.Unmarshal(b, &p)
 }
 
 type Item struct {
@@ -69,4 +103,16 @@ type Item struct {
 	Nm_id        int    `json:"nm_id" validate:"required,numeric,gte=0"`
 	Brand        string `json:"brand" validate:"required,alpha"`
 	Status       int    `json:"status" validate:"required,numeric"`
+}
+
+func (i Item) Value() (driver.Value, error) {
+	return json.Marshal(i)
+}
+
+func (i *Item) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to byte failed")
+	}
+	return json.Unmarshal(b, &i)
 }

@@ -2,6 +2,7 @@ package broker
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"nats/api"
 	"nats/internal/services"
@@ -18,7 +19,7 @@ func Publish() error {
 	defer sc.Close()
 	var res api.Order
 	subj := "orders"
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 1; i++ {
 
 		msg, _ := services.Json_generator(i)
 
@@ -28,7 +29,7 @@ func Publish() error {
 			return err
 		}
 		json.Unmarshal(msg, &res)
-		slog.Info("Published:", res.Order_uid)
+		slog.Info(fmt.Sprintf("Published: %s", res.Order_uid))
 	}
 	return nil
 
