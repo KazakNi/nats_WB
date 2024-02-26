@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log/slog"
-	"nats/internal/db"
+	"nats/api"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,14 +15,14 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
 	logger.Info("Start program")
+	api.NewRouter()
 
-	db.DBConnection, _ = db.NewDBConnection()
+	/* db.DBConnection, _ = db.NewDBConnection()
 
 	defer db.DBConnection.Close()
 
-	//db.GetItembyId(db.DBConnection, "32f2ed8d-f3cc-41e0-ab66-00426f515ffa")
 	db.GetItems(db.DBConnection)
-	/* if init_db {
+	if init_db {
 		db.ExecMigration(db.DBConnection, "../internal/db/migrations/db_init.sql")
 	}
 

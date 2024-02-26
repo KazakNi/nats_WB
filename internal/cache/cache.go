@@ -1,7 +1,11 @@
 package cache
 
 import (
+	"encoding/json"
+	"fmt"
 	"log/slog"
+	"nats/api"
+	"nats/internal/db"
 	"sync"
 )
 
@@ -17,7 +21,7 @@ func New() *Cache {
 		Items: items,
 	}
 
-	//start warming
+	cache.Warm()
 
 	return &cache
 }
@@ -30,11 +34,22 @@ func (c *Cache) Get(key string) (data []byte, found bool) {
 	value, found := c.Items[key]
 
 	if !found {
-		slog.Info("cannot found key:%s", key)
-		return nil, false
-	} else {
-		return value, true
+		slog.Info(fmt.Sprintf("cannot found key:%s, checking database", key))
+		var order api.Order
+		order = db.GetItembyId(db.DBConnection, key)
+		if len(order.Order_uid) == 0 {
+			slog.Info(fmt.Sprintf("cannot found key:%s", key))
+			return nil, false
+		} else {
+			order, err := json.Marshal(order)
+			if err != nil {
+				slog.Error(fmt.Sprintf("Error while marshalling in cache: %s", err))
+			} else {
+				return order, true
+			}
+		}
 	}
+	return value, true
 }
 
 func (c *Cache) Set(key string, data []byte) {
@@ -46,12 +61,14 @@ func (c *Cache) Set(key string, data []byte) {
 }
 
 func (c *Cache) Warm() {
-	// db.getItems
-	// process each item by Cache validation method
-	// Set each validated item in bytes to the Cache
-}
 
-func (c *Cache) ValidateItem(rows string) []byte {
-	// todo
-	return nil
+	items := db.GetItems(db.DBConnection)
+	for _, val := range items {
+		order, err := json.Marshal(val)
+		if err != nil {
+			slog.Error(fmt.Sprintf("Error while warming cache: %s", err))
+		} else {
+			c.Items[val.Order_uid] = order
+		}
+	}
 }

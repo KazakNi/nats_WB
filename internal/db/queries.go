@@ -101,7 +101,6 @@ func GetItems(db *sqlx.DB) []api.Order {
 		slog.Error(fmt.Sprintf("Error while query: %s", err))
 		return order
 	}
-	fmt.Println(order)
 	return order
 }
 
