@@ -10,10 +10,10 @@ import (
 )
 
 type Order struct {
-	Order_uid          string     `json:"order_uid" validate:"required"`
-	Track_number       string     `json:"track_number" validate:"required,numeric"`
-	Entry              string     `json:"entry" validate:"required"`
-	Delivery           Deliveries `json:"delivery" db:"delivery"`
+	Order_uid          string       `json:"order_uid" validate:"required"`
+	Track_number       string       `json:"track_number" validate:"required,numeric"`
+	Entry              string       `json:"entry" validate:"required"`
+	Delivery           DeliveryList `json:"delivery" db:"delivery"`
 	Payment            []Payment
 	Item               []Item
 	Locale             string    `json:"locale" validate:"required"`
@@ -47,23 +47,15 @@ type Delivery struct {
 	Email   string `json:"email" validate:"required,email"`
 }
 
-type Deliveries struct {
-	Delivery []Delivery `json:"delivery" db:"delivery"`
-}
+type DeliveryList []Delivery
 
-func (d Deliveries) Value() (driver.Value, error) {
-	return json.Marshal(d)
-}
-
-func (d *Deliveries) Scan(value interface{}) error {
-	var deliveries Delivery
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to byte failed")
+func (d *DeliveryList) Scan(src interface{}) error {
+	err := json.Unmarshal(src.([]byte), &d)
+	if err != nil {
+		return errors.New("type assertion failed")
+	} else {
+		return nil
 	}
-	err := json.Unmarshal(b, &deliveries)
-	d.Delivery = append(d.Delivery, deliveries)
-	return err
 }
 
 type Payment struct {

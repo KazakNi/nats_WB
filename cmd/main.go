@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"nats/internal/broker"
 	"nats/internal/db"
 	"os"
 	"os/signal"
@@ -22,12 +23,12 @@ func main() {
 
 	db.TestItem(db.DBConnection)
 
-	/* if init_db {
+	if init_db {
 		db.ExecMigration(db.DBConnection, "../internal/db/migrations/db_init.sql")
 	}
 
 	broker.Publish()
-	broker.Subscribe_to_channel() */
+	broker.Subscribe_to_channel()
 
 	stop := make(chan os.Signal, 1)
 

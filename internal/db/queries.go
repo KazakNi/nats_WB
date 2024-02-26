@@ -79,23 +79,19 @@ func TestItem(db *sqlx.DB) {
 		slog.Error(fmt.Sprintf("Error: %s", err))
 	} */
 	//fmt.Printf("\n %v", order)
-	rows, err := db.Queryx(`SELECT order_uid, orders.track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard,
-	json_build_object("name", deliveries.name, "phone", deliveries.phone, "zip", deliveries.zip, "city", deliveries.city,"address", deliveries.address, "region", deliveries.region, "email", deliveries.email) as Delivery
+	err := db.Get(&order, `SELECT order_uid, orders.track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard,
+	jsonb_agg(jsonb_build_object('name', deliveries.name, 'phone', deliveries.phone, 'zip', deliveries.zip, 'city', deliveries.city,'address', deliveries.address, 'region', deliveries.region, 'email', deliveries.email)) as Delivery
 	FROM orders
 	JOIN deliveries ON order_uid = deliveries.order_id
 	WHERE order_uid=$1
-`, "76fdee04-72aa-47eb-8c85-24069af468fb")
+	GROUP BY order_uid
+`, "32f2ed8d-f3cc-41e0-ab66-00426f515ffa")
 	if err != nil {
-		slog.Error(fmt.Sprintf("Error: %s", err))
+		slog.Error(fmt.Sprintf("Error while query: %s", err))
+		return
 	}
-
-	for rows.Next() {
-		err := rows.StructScan(&order)
-		if err != nil {
-			fmt.Printf("error: %s\n", err)
-		}
-		fmt.Printf("%#v\n", order)
-	}
+	fmt.Println(order)
+	return
 }
 
 func GetItembyId(db *sqlx.DB, id string) api.Order {
@@ -178,7 +174,7 @@ func prepareEntityToDB(order api.Order) ([]Delivery, []Payment, []Item) {
 	payments := []Payment{}
 	items := []Item{}
 
-	/* for _, fields := range order.Delivery {
+	for _, fields := range order.Delivery {
 		delivery := Delivery{
 			Order_id: order.Order_uid,
 			Name:     fields.Name,
@@ -191,7 +187,7 @@ func prepareEntityToDB(order api.Order) ([]Delivery, []Payment, []Item) {
 		}
 		deliveries = append(deliveries, delivery)
 
-	} */
+	}
 
 	for _, fields := range order.Payment {
 		payment := Payment{
