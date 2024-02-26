@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"time"
@@ -14,8 +13,8 @@ type Order struct {
 	Track_number       string       `json:"track_number" validate:"required,numeric"`
 	Entry              string       `json:"entry" validate:"required"`
 	Delivery           DeliveryList `json:"delivery" db:"delivery"`
-	Payment            []Payment
-	Item               []Item
+	Payment            PaymentList  `json:"payment" db:"payment"`
+	Item               ItemList
 	Locale             string    `json:"locale" validate:"required"`
 	Internal_signature string    `json:"internal_signature" validate:"required"`
 	Customer_id        int       `json:"customer_id" validate:"required,numeric"`
@@ -71,16 +70,15 @@ type Payment struct {
 	Custom_fee    int    `json:"custom_fee" validate:"required,numeric"`
 }
 
-func (p Payment) Value() (driver.Value, error) {
-	return json.Marshal(p)
-}
+type PaymentList []Payment
 
-func (p *Payment) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to byte failed")
+func (p *PaymentList) Scan(src interface{}) error {
+	err := json.Unmarshal(src.([]byte), &p)
+	if err != nil {
+		return errors.New("type assertion failed")
+	} else {
+		return nil
 	}
-	return json.Unmarshal(b, &p)
 }
 
 type Item struct {
@@ -97,14 +95,13 @@ type Item struct {
 	Status       int    `json:"status" validate:"required,numeric"`
 }
 
-func (i Item) Value() (driver.Value, error) {
-	return json.Marshal(i)
-}
+type ItemList []Item
 
-func (i *Item) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to byte failed")
+func (i *ItemList) Scan(src interface{}) error {
+	err := json.Unmarshal(src.([]byte), &i)
+	if err != nil {
+		return errors.New("type assertion failed")
+	} else {
+		return nil
 	}
-	return json.Unmarshal(b, &i)
 }

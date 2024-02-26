@@ -66,59 +66,43 @@ func ExecMigration(db *sqlx.DB, path string) error {
 	return nil
 }
 
-func TestItem(db *sqlx.DB) {
-	var order api.Order
-	/* 	err := db.Get(&order, `SELECT order_uid, orders.track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard,
-	   	json_build_array(json_build_object("name", deliveries.name, "phone", deliveries.phone, "zip", deliveries.zip, "city", deliveries.city,"address", deliveries.address, "region", deliveries.region, "email", deliveries.email)) as Delivery
-	   	FROM orders
-	   	JOIN deliveries ON order_uid = deliveries.order_id
-	   	WHERE order_uid=$1
-	   `, "76fdee04-72aa-47eb-8c85-24069af468fb") */
-
-	/* if err != nil {
-		slog.Error(fmt.Sprintf("Error: %s", err))
-	} */
-	//fmt.Printf("\n %v", order)
-	err := db.Get(&order, `SELECT order_uid, orders.track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard,
-	jsonb_agg(jsonb_build_object('name', deliveries.name, 'phone', deliveries.phone, 'zip', deliveries.zip, 'city', deliveries.city,'address', deliveries.address, 'region', deliveries.region, 'email', deliveries.email)) as Delivery
-	FROM orders
-	JOIN deliveries ON order_uid = deliveries.order_id
-	WHERE order_uid=$1
-	GROUP BY order_uid
-`, "32f2ed8d-f3cc-41e0-ab66-00426f515ffa")
-	if err != nil {
-		slog.Error(fmt.Sprintf("Error while query: %s", err))
-		return
-	}
-	fmt.Println(order)
-	return
-}
-
 func GetItembyId(db *sqlx.DB, id string) api.Order {
-	/* statement := fmt.Sprintf(`select order_uid, orders.track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard,
-	array_agg(ARRAY[deliveries.name, deliveries.phone, deliveries.zip::varchar, deliveries.city, deliveries.address, deliveries.region, deliveries.email]) as Delivery,
-	array_agg(ARRAY[payments.transaction, payments.request_id::varchar, payments.currency, payments.provider, payments.amount::varchar, payments.payment_dt::varchar, payments.bank, payments.delivery_cost::varchar, payments.goods_total::varchar, payments.custom_fee::varchar]) AS Payment,
-	array_agg(ARRAY[items.chrt_id::varchar, items.track_number, items.price::varchar, items.rid::varchar, items.name, items.sale::varchar, items.size::varchar, items.total_price::varchar, items.nm_id::varchar, items.brand, items.status::varchar]) as Item
+	var order api.Order
+	err := db.Get(&order, `SELECT order_uid, orders.track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard,
+	json_agg(json_build_object('name', deliveries.name, 'phone', deliveries.phone, 'zip', deliveries.zip, 'city', deliveries.city,'address', deliveries.address, 'region', deliveries.region, 'email', deliveries.email)) as Delivery,
+	json_agg(json_build_object('transaction', payments.transaction, 'request_id', payments.request_id, 'currency', payments.currency, 'provider', payments.provider, 'amount', payments.amount, 'payment_dt', payments.payment_dt, 'bank', payments.bank, 'delivery_cost', payments.delivery_cost, 'goods_total', payments.goods_total, 'custom_fee', payments.custom_fee)) as Payment,
+	json_agg(json_build_object('chrt_id', items.chrt_id, 'track_number', items.track_number, 'price', items.price, 'rid', items.rid, 'name', items.name, 'sale', items.sale, 'size', items.size, 'total_price', items.total_price, 'nm_id', items.nm_id, 'brand', items.brand, 'status', items.status)) as Item
 	FROM orders
 	JOIN deliveries ON order_uid = deliveries.order_id
 	JOIN payments ON order_uid = payments.transaction
 	JOIN items ON orders.track_number = items.track_number
-	WHERE order_uid = %s
-	Group by order_uid`, id) */
-	return api.Order{}
+	WHERE order_uid=$1
+	GROUP BY order_uid
+`, id)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Error while query: %s", err))
+		return order
+	}
+	return order
 }
 
 func GetItems(db *sqlx.DB) []api.Order {
-	/* statement := `select order_uid, orders.track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard,
-	array_agg(ARRAY[deliveries.name, deliveries.phone, deliveries.zip::varchar, deliveries.city, deliveries.address, deliveries.region, deliveries.email]) as Delivery,
-	array_agg(ARRAY[payments.transaction, payments.request_id::varchar, payments.currency, payments.provider, payments.amount::varchar, payments.payment_dt::varchar, payments.bank, payments.delivery_cost::varchar, payments.goods_total::varchar, payments.custom_fee::varchar]) AS Payment,
-	array_agg(ARRAY[items.chrt_id::varchar, items.track_number, items.price::varchar, items.rid::varchar, items.name, items.sale::varchar, items.size::varchar, items.total_price::varchar, items.nm_id::varchar, items.brand, items.status::varchar]) as Item
+	var order []api.Order
+	err := db.Select(&order, `SELECT order_uid, orders.track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard,
+	json_agg(json_build_object('name', deliveries.name, 'phone', deliveries.phone, 'zip', deliveries.zip, 'city', deliveries.city,'address', deliveries.address, 'region', deliveries.region, 'email', deliveries.email)) as Delivery,
+	json_agg(json_build_object('transaction', payments.transaction, 'request_id', payments.request_id, 'currency', payments.currency, 'provider', payments.provider, 'amount', payments.amount, 'payment_dt', payments.payment_dt, 'bank', payments.bank, 'delivery_cost', payments.delivery_cost, 'goods_total', payments.goods_total, 'custom_fee', payments.custom_fee)) as Payment,
+	json_agg(json_build_object('chrt_id', items.chrt_id, 'track_number', items.track_number, 'price', items.price, 'rid', items.rid, 'name', items.name, 'sale', items.sale, 'size', items.size, 'total_price', items.total_price, 'nm_id', items.nm_id, 'brand', items.brand, 'status', items.status)) as Item
 	FROM orders
 	JOIN deliveries ON order_uid = deliveries.order_id
 	JOIN payments ON order_uid = payments.transaction
 	JOIN items ON orders.track_number = items.track_number
-	Group by order_uid` */
-	return nil
+	GROUP BY order_uid`)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Error while query: %s", err))
+		return order
+	}
+	fmt.Println(order)
+	return order
 }
 
 func InsertItem(db *sqlx.DB, api_order api.Order) {
