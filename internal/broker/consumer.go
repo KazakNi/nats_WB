@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"nats/api"
-	"nats/internal/cache"
 	"nats/internal/db"
+	"nats/internal/storage"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -40,8 +40,6 @@ func getSubConnection(nc *nats.Conn) stan.Conn {
 
 func Subscribe_to_channel() {
 	var chunk api.Order
-
-	cache := cache.New()
 
 	nc, err := natsConnect()
 	if err != nil {
@@ -79,7 +77,7 @@ func Subscribe_to_channel() {
 			if err != nil {
 				slog.Error(fmt.Sprintf("Error while validating chunk id #%s: err - %s", chunk.Order_uid, err))
 			} else {
-				cache.Set(chunk.Order_uid, m.Data)
+				storage.AppCache.Set(chunk.Order_uid, m.Data)
 				db.InsertItem(db.DBConnection, chunk)
 			}
 			m.Ack()

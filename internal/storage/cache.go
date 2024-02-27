@@ -1,10 +1,9 @@
-package cache
+package storage
 
 import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"nats/api"
 	"nats/internal/db"
 	"sync"
 )
@@ -14,13 +13,16 @@ type Cache struct {
 	Items map[string][]byte
 }
 
+var (
+	AppCache *Cache
+)
+
 func New() *Cache {
 	items := make(map[string][]byte)
 
 	cache := Cache{
 		Items: items,
 	}
-
 	cache.Warm()
 
 	return &cache
@@ -35,8 +37,7 @@ func (c *Cache) Get(key string) (data []byte, found bool) {
 
 	if !found {
 		slog.Info(fmt.Sprintf("cannot found key:%s, checking database", key))
-		var order api.Order
-		order = db.GetItembyId(db.DBConnection, key)
+		order := db.GetItembyId(db.DBConnection, key)
 		if len(order.Order_uid) == 0 {
 			slog.Info(fmt.Sprintf("cannot found key:%s", key))
 			return nil, false

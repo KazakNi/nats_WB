@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"math/rand/v2"
 	"nats/api"
 	"nats/internal/services"
+	"time"
 
 	"github.com/nats-io/stan.go"
 )
@@ -19,9 +21,9 @@ func Publish() error {
 	defer sc.Close()
 	var res api.Order
 	subj := "orders"
-	for i := 0; i < 1; i++ {
+	for {
 
-		msg, _ := services.Json_generator(i)
+		msg, _ := services.Json_generator(rand.IntN(100))
 
 		err = sc.Publish(subj, msg)
 		if err != nil {
@@ -30,7 +32,7 @@ func Publish() error {
 		}
 		json.Unmarshal(msg, &res)
 		slog.Info(fmt.Sprintf("Published: %s", res.Order_uid))
+		time.Sleep(time.Second * 3)
 	}
-	return nil
 
 }

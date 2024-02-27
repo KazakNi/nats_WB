@@ -1,13 +1,80 @@
 {{define "order.html" }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<div class="h-200 d-flex align-items-center justify-content-center">
 <div class="card text-center">
     <div class="card-header">
     </div>
     <div class="card-body">
       <h5 class="card-title">ORDER INFO</h5>
-      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-      <a href="/id" class="btn btn-primary">Go somewhere</a>
-      
+      <p class="card-text"></p>
+
+      <h6  class="text-info"> <span class =" text-success"> Order_uid:</span> {{ .order.Order_uid }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Track_number: </span>{{ .order.Track_number }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Entry: </span>{{ .order.Entry }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Delivery: </span> 
+        <div class="card mx-auto" style="width: 32rem;">
+          <div class="card-body">
+            {{ range .order.Delivery }}
+            <p>Name: {{ .Name }}</p>
+            <p> Phone: {{ .Phone }}</p>
+            <p>Zip: {{ .Zip }}</p>
+              <p>City: {{ .City }}</p>
+                <p>Address: {{ .Address }}</p>
+                  <p>Region: {{ .Region }}</p>
+                    <p>Email: {{ .Email }}</p>
+            {{end}}
+          </div>
+        </div>
+        
+        </h6>
+      <h6  class="text-info"> <span class =" text-success"> Payment: </span>
+        <div class="card mx-auto" style="width: 32rem;">
+          <div class="card-body">
+            {{ range .order.Payment }}
+            <p>Transaction: {{ .Transaction }}</p>
+            <p> Request_id: {{ .Request_id }}</p>
+            <p>Currency: {{ .Currency }}</p>
+              <p>Provider: {{ .Provider }}</p>
+                <p>Amount: {{ .Amount }}</p>
+                  <p>Payment_dt: {{ .Payment_dt }}</p>
+                    <p>Bank: {{ .Bank }}</p>
+                    <p>Delivery_cost: {{ .Delivery_cost }}</p>
+                  <p>Goods_total: {{ .Goods_total }}</p>
+                    <p>Custom_fee: {{ .Custom_fee }}</p>
+            {{end}}
+          </div>
+        </div>
+      </h6>
+      <h6  class="text-info"> <span class =" text-success"> Item: </span>
+        <div class="card mx-auto" style="width: 32rem;">
+          <div class="card-body">
+            {{ range .order.Item}}
+            <p>Chrt_id: {{ .Chrt_id }}</p>
+            <p> Track_number: {{ .Track_number }}</p>
+            <p>Price: {{ .Price }}</p>
+              <p>Rid: {{ .Rid }}</p>
+                <p>Name: {{ .Name }}</p>
+                  <p>Sale: {{ .Sale }}</p>
+                    <p>Size: {{ .Size }}</p>
+                    <p>Total_price: {{ .Total_price }}</p>
+                  <p>Nm_id: {{ .Nm_id }}</p>
+                    <p>Brand: {{ .Brand }}</p>
+                    <p>Status: {{ .Status }}</p>
+            {{end}}
+          </div>
+        </div>
+      </h6>
+      <h6  class="text-info"> <span class =" text-success"> Locale:</span> {{ .order.Locale }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Internal_signature:</span>{{ .order.Internal_signature }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Customer_id:</span> {{ .order.Customer_id }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Delivery_service:</span> {{ .order.Delivery_service }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Shardkey:</span> {{ .order.Shardkey }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Sm_id:</span> {{ .order.Sm_id }}</h6>
+      <h6  class="text-info"> <span class =" text-success"> Date_created:</span> {{ .order.Date_created }}</h6>
+      <h6  class="text-info"> <span class =" text-success">Oof_shard:</span> {{ .order.Oof_shard }}</h6>
+
+      <a href="/id" class="btn btn-primary">На главную</a>
     </div>
   </div>
+</div>
 {{end}}

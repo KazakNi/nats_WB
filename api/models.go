@@ -14,15 +14,15 @@ type Order struct {
 	Entry              string       `json:"entry" validate:"required"`
 	Delivery           DeliveryList `json:"delivery" db:"delivery"`
 	Payment            PaymentList  `json:"payment" db:"payment"`
-	Item               ItemList
-	Locale             string    `json:"locale" validate:"required"`
-	Internal_signature string    `json:"internal_signature" validate:"required"`
-	Customer_id        int       `json:"customer_id" validate:"required,numeric"`
-	Delivery_service   string    `json:"delivery_service" validate:"required"`
-	Shardkey           int       `json:"shardkey" validate:"required,numeric"`
-	Sm_id              int       `json:"sm_id" validate:"required,numeric"`
-	Date_created       time.Time `json:"date_created"  validate:"required"`
-	Oof_shard          int       `json:"oof_shard" validate:"required,numeric"`
+	Item               ItemList     `json:"item"`
+	Locale             string       `json:"locale" validate:"required"`
+	Internal_signature string       `json:"internal_signature" validate:"required"`
+	Customer_id        int          `json:"customer_id" validate:"required,numeric"`
+	Delivery_service   string       `json:"delivery_service" validate:"required"`
+	Shardkey           int          `json:"shardkey" validate:"required,numeric"`
+	Sm_id              int          `json:"sm_id" validate:"required,numeric"`
+	Date_created       time.Time    `json:"date_created"  validate:"required"`
+	Oof_shard          int          `json:"oof_shard" validate:"required,numeric"`
 }
 
 func (o *Order) Validate() error {
